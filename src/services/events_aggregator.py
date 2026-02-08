@@ -1,0 +1,2 @@
+class EventsAggregatorService:
+    pass
