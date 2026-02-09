@@ -1,3 +1,3 @@
 import os
 
-DATABASE_URL = os.getenv("POSTGRES_CONNECTION_STRING")
+DATABASE_URL = os.getenv("DATABASE_URL")
