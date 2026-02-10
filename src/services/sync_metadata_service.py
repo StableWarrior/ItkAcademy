@@ -1,28 +1,24 @@
 from datetime import datetime
 from zoneinfo import ZoneInfo
+
 from src.shemas import Event
-from .events_paginator import EventsPaginatorService
+
 from ..config import LOGGER
 from ..database.repository.sync_metadata_repository import SyncMetadataRepository
+from .events_paginator import EventsPaginatorService
 
 
 class SyncMetadataService:
-
     def __init__(
-            self,
-            service: EventsPaginatorService,
-            repository: SyncMetadataRepository
+        self, service: EventsPaginatorService, repository: SyncMetadataRepository
     ):
         self.service = service
         self.repository = repository
 
-
     async def sync_events(self):
 
         last_changed_at = await self.repository.get_last_changed_at()
-        await self.service.set_changed_at(
-            last_changed_at or "2000-01-01"
-        )
+        await self.service.set_changed_at(last_changed_at or "2000-01-01")
 
         try:
             async for page in self.service:
@@ -43,11 +39,7 @@ class SyncMetadataService:
         metadata = await self.repository.save(
             last_sync_time=datetime.now(ZoneInfo("Asia/Vladivostok")),
             last_changed_at=last_changed_at,
-            sync_status="Ok"
+            sync_status="Ok",
         )
 
         return metadata
-
-
-
-

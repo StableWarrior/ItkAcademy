@@ -1,6 +1,6 @@
 from datetime import datetime
 from uuid import UUID
-from typing import Literal
+
 from pydantic import BaseModel
 
 
@@ -10,6 +10,7 @@ class Place(BaseModel):
     city: str
     address: str
     seats_pattern: str
+
 
 class Event(BaseModel):
     id: UUID

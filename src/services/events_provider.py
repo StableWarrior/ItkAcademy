@@ -1,10 +1,9 @@
 import aiohttp
-from ..config import X_API_KEY, EVENTS_API_URL
+
+from ..config import EVENTS_API_URL, X_API_KEY
 
 
 class EventsProviderService:
-
-
     async def __aenter__(self):
         self.session = aiohttp.ClientSession(
             headers={
@@ -18,7 +17,9 @@ class EventsProviderService:
             await self.session.close()
 
     async def get_first_page(self, changed_at: str):
-        async with self.session.get(f"{EVENTS_API_URL}/api/events/?changed_at={changed_at}") as response:
+        async with self.session.get(
+            f"{EVENTS_API_URL}/api/events/?changed_at={changed_at}"
+        ) as response:
             page = await response.json()
         return page
 
