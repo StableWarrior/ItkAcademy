@@ -1,12 +1,10 @@
 from datetime import datetime
+
 from .events_provider import EventsProviderService
 
 
 class EventsPaginatorService:
-    def __init__(
-            self,
-            service: EventsProviderService
-    ):
+    def __init__(self, service: EventsProviderService):
         self.service = service
         self.current_events = []
         self.next_page = ""
