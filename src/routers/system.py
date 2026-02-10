@@ -8,7 +8,7 @@ from ..services.sync_metadata_service import SyncMetadataService
 from ..shemas import SyncMetadata
 
 router = APIRouter(
-    prefix="/api/v1",
+    prefix="/api",
     tags=["system"],
 )
 

@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
 router = APIRouter(
-    prefix="/api/v1",
+    prefix="/api",
     tags=["events_aggregator"],
 )
