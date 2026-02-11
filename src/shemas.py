@@ -1,5 +1,6 @@
 from datetime import datetime
 from uuid import UUID
+from typing import List, Optional
 
 from pydantic import BaseModel
 
@@ -20,6 +21,13 @@ class Event(BaseModel):
     registration_deadline: datetime
     status: str
     number_of_visitors: int
+
+
+class Page(BaseModel):
+    count: int
+    next: Optional[str]
+    previous: Optional[str]
+    results: List[Event]
 
 
 class SyncMetadata(BaseModel):
