@@ -1,14 +1,17 @@
 from datetime import date
-from sqlalchemy import select, func
+from uuid import UUID
+
+from fastapi import HTTPException
+from sqlalchemy import func, select
 from sqlalchemy.orm import joinedload
+
+from src.config import HOSTNAME, PORT
 
 from ..connection import async_session
 from ..models import Event
-from src.config import HOSTNAME, PORT
 
 
 class EventsAggregatorRepository:
-
     @classmethod
     async def get_events(
         cls,
@@ -31,9 +34,7 @@ class EventsAggregatorRepository:
                 .where(Event.event_time >= date_from)
             )
 
-            result = await db.execute(
-                query.limit(page_size).offset(offset)
-            )
+            result = await db.execute(query.limit(page_size).offset(offset))
 
             events = result.unique().scalars().all()
             total_count = (await db.execute(count_query)).scalar_one()
@@ -54,3 +55,18 @@ class EventsAggregatorRepository:
             }
 
         return response
+
+    @classmethod
+    async def get_event(cls, event_id: UUID):
+        async with async_session() as db:
+            result = await db.execute(
+                select(Event)
+                .options(joinedload(Event.place))
+                .where(Event.id == event_id)
+            )
+            event = result.scalar_one_or_none()
+
+            if event is None:
+                raise HTTPException(status_code=404, detail="Event not found")
+
+        return event
