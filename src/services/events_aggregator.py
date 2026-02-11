@@ -1,9 +1,10 @@
 from datetime import date
+from uuid import UUID
+
 from ..database.repository.events_aggregator import EventsAggregatorRepository
 
 
 class EventsAggregatorService:
-
     def __init__(self, repository: EventsAggregatorRepository):
         self.repository = repository
 
@@ -18,3 +19,6 @@ class EventsAggregatorService:
         )
         return page
 
+    async def get_event(self, event_id: UUID):
+        event = await self.repository.get_event(event_id=event_id)
+        return event
