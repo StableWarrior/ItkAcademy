@@ -2,6 +2,8 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
+from fastapi_cache import FastAPICache
+from fastapi_cache.backends.inmemory import InMemoryBackend
 
 from .database.connection import Base, engine
 from .routers import events_aggregator, events_provider, system
@@ -9,6 +11,8 @@ from .routers import events_aggregator, events_provider, system
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    FastAPICache.init(InMemoryBackend(), prefix="fastapi-cache")
+
     yield
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
