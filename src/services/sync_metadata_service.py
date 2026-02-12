@@ -39,7 +39,7 @@ class SyncMetadataService:
         metadata = await self.repository.save(
             last_sync_time=datetime.now(ZoneInfo("Asia/Vladivostok")),
             last_changed_at=last_changed_at,
-            sync_status="Ok",
+            sync_status="Error" if last_changed_at is None else "Ok",
         )
 
         return metadata
