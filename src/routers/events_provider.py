@@ -1,9 +1,11 @@
 from uuid import UUID
+
 from fastapi import APIRouter
 from fastapi_cache.decorator import cache
-from ..services.events_provider import EventsProviderService
-from ..services.events_aggregator import EventsAggregatorService
+
 from ..database.repository.events_aggregator import EventsAggregatorRepository
+from ..services.events_aggregator import EventsAggregatorService
+from ..services.events_provider import EventsProviderService
 from ..shemas import Seats
 
 router = APIRouter(
@@ -16,9 +18,7 @@ router = APIRouter(
 @cache(expire=30)
 async def get_seats(event_id: UUID) -> Seats:
     async with EventsProviderService(
-        service=EventsAggregatorService(
-            repository=EventsAggregatorRepository()
-        )
+        service=EventsAggregatorService(repository=EventsAggregatorRepository())
     ) as session:
         seats = await session.get_seats(event_id=event_id)
     return seats

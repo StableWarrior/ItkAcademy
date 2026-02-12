@@ -1,7 +1,9 @@
-import aiohttp
 from uuid import UUID
+
+import aiohttp
 from fastapi import HTTPException
-from ..config import EVENTS_API_URL, X_API_KEY, LOGGER
+
+from ..config import EVENTS_API_URL, X_API_KEY
 from .events_aggregator import EventsAggregatorService
 
 
@@ -38,7 +40,9 @@ class EventsProviderService:
         if event.status != "published":
             raise HTTPException(status_code=400, detail="Event is not published")
 
-        async with self.session.get(f"{EVENTS_API_URL}/api/events/{event_id}/seats") as response:
+        async with self.session.get(
+            f"{EVENTS_API_URL}/api/events/{event_id}/seats"
+        ) as response:
             seats = await response.json()
             seats["event_id"] = event_id
 
