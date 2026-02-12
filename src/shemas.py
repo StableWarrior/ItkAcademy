@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import List, Optional
 from uuid import UUID
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class Place(BaseModel):
@@ -28,6 +28,11 @@ class Page(BaseModel):
     next: Optional[str]
     previous: Optional[str]
     results: List[Event]
+
+
+class Seats(BaseModel):
+    event_id: UUID
+    available_seats: List[str] = Field(validation_alias="seats")
 
 
 class SyncMetadata(BaseModel):
