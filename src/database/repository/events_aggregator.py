@@ -5,7 +5,7 @@ from fastapi import HTTPException
 from sqlalchemy import func, select
 from sqlalchemy.orm import joinedload
 
-from src.config import HOSTNAME, PORT
+from src.config import EVENTS_AGGREGATOR_URL
 
 from ..connection import async_session
 from ..models import Event
@@ -41,11 +41,11 @@ class EventsAggregatorRepository:
 
             next_url = None
             if offset + page_size < total_count:
-                next_url = f"http://{HOSTNAME}:{PORT}/api/events/?page={page + 1}"
+                next_url = f"{EVENTS_AGGREGATOR_URL}/api/events/?page={page + 1}"
 
             previous_url = None
             if page > 1:
-                previous_url = f"http://{HOSTNAME}:{PORT}/api/events/?page={page - 1}"
+                previous_url = f"{EVENTS_AGGREGATOR_URL}/api/events/?page={page - 1}"
 
             response = {
                 "count": total_count,
