@@ -15,6 +15,6 @@ RUN uv pip install --system .
 
 COPY src ./src
 
-CMD ["sh", "-c", "alembic -c src/alembic.ini upgrade head && uvicorn src.main:app --host 0.0.0.0 --port 5000"]
+CMD ["sh", "-c", "alembic -c src/alembic.ini upgrade head && uvicorn src.main:app --host 0.0.0.0 --port 8000"]
 
 
