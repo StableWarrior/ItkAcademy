@@ -10,8 +10,7 @@ services:
       - DATABASE_URL=${DATABASE_URL}
       - X_API_KEY=${X_API_KEY}
       - EVENTS_API_URL=${EVENTS_API_URL}
-      - HOSTNAME=${HOSTNAME}
-      - PORT=${PORT}
+      - EVENTS_AGGREGATOR_URL=${EVENTS_AGGREGATOR_URL}
     ports:
       - '8000:8000'
     expose:
