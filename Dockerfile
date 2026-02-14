@@ -10,11 +10,12 @@ ENV PATH="/root/.local/bin:${PATH}"
 
 WORKDIR /ItkAcademy
 COPY pyproject.toml uv.lock ./
+COPY run.sh ./
 
 RUN uv pip install --system .
 
 COPY src ./src
 
-CMD ["sh", "-c", "alembic -c src/alembic.ini upgrade head && uvicorn src.main:app --host 0.0.0.0 --port 8000"]
+CMD ["bash", "./run.sh"]
 
 
