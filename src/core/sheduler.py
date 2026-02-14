@@ -1,15 +1,14 @@
 import asyncio
+from zoneinfo import ZoneInfo
+
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
-from zoneinfo import ZoneInfo
 
 from .tasks import sync_metadata
 
 
 async def main():
-    scheduler = AsyncIOScheduler(
-        timezone=ZoneInfo("Asia/Vladivostok")
-    )
+    scheduler = AsyncIOScheduler(timezone=ZoneInfo("Asia/Vladivostok"))
 
     scheduler.add_job(
         sync_metadata,
