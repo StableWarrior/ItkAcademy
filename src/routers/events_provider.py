@@ -6,7 +6,7 @@ from fastapi_cache.decorator import cache
 from ..database.repository.events_aggregator import EventsAggregatorRepository
 from ..services.events_aggregator import EventsAggregatorService
 from ..services.events_provider import EventsProviderService
-from ..shemas import Seats, Registration, Ticket
+from ..shemas import Registration, Seats, Ticket
 
 router = APIRouter(
     prefix="/api",

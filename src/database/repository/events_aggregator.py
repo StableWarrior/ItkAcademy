@@ -9,7 +9,7 @@ from src.config import EVENTS_AGGREGATOR_URL
 from src.shemas import Registration
 
 from ..connection import async_session
-from ..models import Event, User, Ticket
+from ..models import Event, Ticket, User
 
 
 class EventsAggregatorRepository:
@@ -72,7 +72,6 @@ class EventsAggregatorRepository:
 
         return event
 
-
     @classmethod
     async def get_ticket(cls, ticket_id: UUID):
         async with async_session() as db:
@@ -88,7 +87,6 @@ class EventsAggregatorRepository:
 
         return ticket
 
-
     @classmethod
     async def register_ticket(cls, ticket_id: UUID, registration: Registration):
         async with async_session() as db:
@@ -97,7 +95,7 @@ class EventsAggregatorRepository:
                 result = await db.execute(
                     select(User).where(
                         User.first_name == registration_data["first_name"],
-                        User.last_name == registration_data["last_name"]
+                        User.last_name == registration_data["last_name"],
                     )
                 )
                 user = result.scalar_one_or_none()
@@ -106,7 +104,7 @@ class EventsAggregatorRepository:
                     user = User(
                         first_name=registration_data["first_name"],
                         last_name=registration_data["last_name"],
-                        email=registration_data["email"]
+                        email=registration_data["email"],
                     )
                     db.add(user)
                     await db.flush()
@@ -116,11 +114,10 @@ class EventsAggregatorRepository:
                     "id": ticket_id,
                     "seat": registration_data["seat"],
                     "user_id": user.id,
-                    "event_id": registration_data["event_id"]
+                    "event_id": registration_data["event_id"],
                 }
                 ticket_db = Ticket(**ticket_data)
                 db.add(ticket_db)
-
 
     @classmethod
     async def cansel_ticket(cls, ticket_id: UUID):

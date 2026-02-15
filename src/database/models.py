@@ -66,7 +66,9 @@ class User(Base):
     last_name = Column(String(100), nullable=False)
     email = Column(String(255), nullable=False, unique=True)
 
-    tickets = relationship("Ticket", back_populates="user", cascade="all, delete-orphan")
+    tickets = relationship(
+        "Ticket", back_populates="user", cascade="all, delete-orphan"
+    )
 
 
 class Ticket(Base):
@@ -75,7 +77,9 @@ class Ticket(Base):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     seat = Column(String(10), nullable=False)
 
-    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    user_id = Column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+    )
     user = relationship("User", back_populates="tickets")
 
     event_id = Column(
@@ -84,4 +88,3 @@ class Ticket(Base):
         nullable=False,
     )
     event = relationship("Event", back_populates="tickets")
-
