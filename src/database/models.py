@@ -29,6 +29,12 @@ class Event(Base):
     status = Column(String(50), nullable=False)
     number_of_visitors = Column(Integer, default=0)
 
+    tickets = relationship(
+        "Ticket",
+        back_populates="event",
+        cascade="all, delete-orphan",
+    )
+
 
 class Place(Base):
     __tablename__ = "places"
@@ -50,3 +56,35 @@ class SyncMetadata(Base):
     last_sync_time = Column(DateTime(timezone=True), nullable=True)
     last_changed_at = Column(DateTime(timezone=True), nullable=True)
     sync_status = Column(String(50), nullable=False)
+
+
+class User(Base):
+    __tablename__ = "users"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    first_name = Column(String(100), nullable=False)
+    last_name = Column(String(100), nullable=False)
+    email = Column(String(255), nullable=False, unique=True)
+
+    tickets = relationship(
+        "Ticket", back_populates="user", cascade="all, delete-orphan"
+    )
+
+
+class Ticket(Base):
+    __tablename__ = "tickets"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    seat = Column(String(10), nullable=False)
+
+    user_id = Column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+    )
+    user = relationship("User", back_populates="tickets")
+
+    event_id = Column(
+        UUID(as_uuid=True),
+        ForeignKey("events.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    event = relationship("Event", back_populates="tickets")

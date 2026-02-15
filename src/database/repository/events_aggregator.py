@@ -6,9 +6,10 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import joinedload
 
 from src.config import EVENTS_AGGREGATOR_URL
+from src.shemas import Registration
 
 from ..connection import async_session
-from ..models import Event
+from ..models import Event, Ticket, User
 
 
 class EventsAggregatorRepository:
@@ -70,3 +71,58 @@ class EventsAggregatorRepository:
                 raise HTTPException(status_code=404, detail="Event not found")
 
         return event
+
+    @classmethod
+    async def get_ticket(cls, ticket_id: UUID):
+        async with async_session() as db:
+            result = await db.execute(
+                select(Ticket)
+                .options(joinedload(Ticket.event).joinedload(Event.place))
+                .where(Ticket.id == ticket_id)
+            )
+            ticket = result.scalar_one_or_none()
+
+            if ticket is None:
+                raise HTTPException(status_code=404, detail="Ticket not found")
+
+        return ticket
+
+    @classmethod
+    async def register_ticket(cls, ticket_id: UUID, registration: Registration):
+        async with async_session() as db:
+            async with db.begin():
+                registration_data = registration.model_dump()
+                result = await db.execute(
+                    select(User).where(
+                        User.first_name == registration_data["first_name"],
+                        User.last_name == registration_data["last_name"],
+                    )
+                )
+                user = result.scalar_one_or_none()
+
+                if not user:
+                    user = User(
+                        first_name=registration_data["first_name"],
+                        last_name=registration_data["last_name"],
+                        email=registration_data["email"],
+                    )
+                    db.add(user)
+                    await db.flush()
+                    await db.refresh(user)
+
+                ticket_data = {
+                    "id": ticket_id,
+                    "seat": registration_data["seat"],
+                    "user_id": user.id,
+                    "event_id": registration_data["event_id"],
+                }
+                ticket_db = Ticket(**ticket_data)
+                db.add(ticket_db)
+
+    @classmethod
+    async def cansel_ticket(cls, ticket_id: UUID):
+        async with async_session() as db:
+            async with db.begin():
+                ticket = await cls.get_ticket(ticket_id=ticket_id)
+                if ticket:
+                    await db.delete(ticket)

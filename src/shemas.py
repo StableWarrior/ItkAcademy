@@ -35,6 +35,18 @@ class Seats(BaseModel):
     available_seats: List[str] = Field(validation_alias="seats")
 
 
+class Registration(BaseModel):
+    event_id: UUID
+    first_name: str
+    last_name: str
+    email: str
+    seat: str
+
+
+class Ticket(BaseModel):
+    ticket_id: UUID
+
+
 class SyncMetadata(BaseModel):
     last_sync_time: datetime
     last_changed_at: datetime
