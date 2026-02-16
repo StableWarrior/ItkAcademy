@@ -24,7 +24,7 @@ async def get_seats(event_id: UUID) -> Seats:
     return seats
 
 
-@router.post("/tickets", name="register_ticket", response_model=Ticket)
+@router.post("/tickets", name="register_ticket", response_model=Ticket, status_code=201)
 async def register_ticket(registration: Registration) -> Seats:
     async with EventsProviderService(
         service=EventsAggregatorService(repository=EventsAggregatorRepository())
