@@ -1,6 +1,7 @@
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
+from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from fastapi_cache import FastAPICache
 from fastapi_cache.backends.inmemory import InMemoryBackend
@@ -32,4 +33,9 @@ async def http_exception_handler(_: Request, exc: Exception) -> JSONResponse:
         "error_type": exc.__class__.__name__,
         "error_message": exc.__str__(),
     }
+    if isinstance(exc, RequestValidationError):
+        return JSONResponse(
+            status_code=400,
+            content=error,
+        )
     return JSONResponse(content=error)
