@@ -26,6 +26,20 @@ app.include_router(events_aggregator.router)
 app.include_router(system.router)
 
 
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(_: Request, exc: RequestValidationError):
+    error = {
+        "result": False,
+        "error_type": exc.__class__.__name__,
+        "error_message": exc.__str__(),
+    }
+
+    return JSONResponse(
+        status_code=400,
+        content=error,
+    )
+
+
 @app.exception_handler(Exception)
 async def http_exception_handler(_: Request, exc: Exception) -> JSONResponse:
     error = {
@@ -33,9 +47,4 @@ async def http_exception_handler(_: Request, exc: Exception) -> JSONResponse:
         "error_type": exc.__class__.__name__,
         "error_message": exc.__str__(),
     }
-    if isinstance(exc, RequestValidationError):
-        return JSONResponse(
-            status_code=400,
-            content=error,
-        )
     return JSONResponse(content=error)
