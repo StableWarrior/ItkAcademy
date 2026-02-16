@@ -5,7 +5,7 @@ from zoneinfo import ZoneInfo
 import aiohttp
 from fastapi import HTTPException
 
-from ..config import EVENTS_API_URL, LOGGER, X_API_KEY
+from ..config import EVENTS_API_URL, X_API_KEY
 from ..shemas import Registration
 from .events_aggregator import EventsAggregatorService
 
@@ -53,7 +53,6 @@ class EventsProviderService:
 
     async def register_ticket(self, registration: Registration):
         seats = await self.get_seats(event_id=registration.event_id)
-        LOGGER.info("test", seats=seats["seats"])
         event = await self.service.get_event(event_id=registration.event_id)
 
         if registration.seat not in seats["seats"]:
