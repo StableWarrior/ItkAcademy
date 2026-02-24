@@ -1,7 +1,9 @@
 import uuid
+from datetime import datetime
+from zoneinfo import ZoneInfo
 
 from sqlalchemy import Column, DateTime, ForeignKey, Integer, String
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import relationship
 
 from .connection import Base
@@ -88,3 +90,39 @@ class Ticket(Base):
         nullable=False,
     )
     event = relationship("Event", back_populates="tickets")
+
+    outbox_messages = relationship(
+        "Outbox",
+        back_populates="ticket",
+        cascade="all, delete-orphan",
+    )
+
+
+class Outbox(Base):
+    __tablename__ = "outbox"
+
+    id = Column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        default=uuid.uuid4,
+    )
+
+    event_type = Column(String(255), nullable=False)
+
+    payload = Column(JSONB, nullable=False)
+
+    status = Column(String(50), nullable=False, index=True)  # pending / sent
+
+    created_at = Column(
+        DateTime(timezone=True),
+        nullable=False,
+        default=lambda: datetime.now(ZoneInfo("Asia/Vladivostok")),
+    )
+
+    ticket_id = Column(
+        UUID(as_uuid=True),
+        ForeignKey("tickets.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+
+    ticket = relationship("Ticket", back_populates="outbox_messages")
