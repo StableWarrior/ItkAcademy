@@ -10,6 +10,7 @@ from src.shemas import Registration
 
 from ..connection import async_session
 from ..models import Event, Ticket, User
+from .outbox_repository import OutboxRepository
 
 
 class EventsAggregatorRepository:
@@ -118,6 +119,17 @@ class EventsAggregatorRepository:
                 }
                 ticket_db = Ticket(**ticket_data)
                 db.add(ticket_db)
+
+                await db.flush()
+                await db.refresh(ticket_db, ["event"])
+
+                outbox_repository = OutboxRepository(db)
+                await outbox_repository.save(
+                    event_type=ticket_db.event.name,
+                    payload={},
+                    status="ожидает отправки",
+                    ticket_id=ticket_id,
+                )
 
     @classmethod
     async def cansel_ticket(cls, ticket_id: UUID):
