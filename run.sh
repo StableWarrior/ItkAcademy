@@ -4,7 +4,8 @@ set -e
 
 alembic -c src/alembic.ini upgrade head
 
-python -m src.scheduler &
+python -m src.scheduler_metadata &
+python -m src.scheduler_notifications &
 uvicorn src.main:app --host 0.0.0.0 --port 8000 &
 
 wait
