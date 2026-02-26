@@ -3,6 +3,7 @@ from uuid import UUID
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import joinedload
 
 from ..models import Outbox
 
@@ -26,8 +27,18 @@ class OutboxRepository:
         return outbox
 
     async def get(self, status: str):
-        result = await self.db.execute(select(Outbox).where(Outbox.status == status))
+        result = await self.db.execute(
+            select(Outbox)
+            .options(joinedload(Outbox.idempotency))
+            .where(Outbox.status == status)
+        )
 
-        outbox = result.scalars().all()
+        outboxes = result.scalars().unique().all()
+
+        return outboxes
+
+    async def update(self, outbox: Outbox):
+        outbox.status = "отправлено"
+        await self.db.flush()
 
         return outbox

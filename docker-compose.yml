@@ -11,6 +11,7 @@ services:
       - X_API_KEY=${X_API_KEY}
       - EVENTS_API_URL=${EVENTS_API_URL}
       - EVENTS_AGGREGATOR_URL=${EVENTS_AGGREGATOR_URL}
+      - EVENTS_CAPASHINO_URL=${EVENTS_CAPASHINO_URL}
     ports:
       - '8000:8000'
     expose:

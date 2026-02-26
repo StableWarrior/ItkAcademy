@@ -5,7 +5,7 @@ from zoneinfo import ZoneInfo
 import aiohttp
 from fastapi import HTTPException
 
-from ..config import EVENTS_API_URL, LOGGER, X_API_KEY
+from ..config import EVENTS_API_URL, EVENTS_CAPASHINO_URL, LOGGER, X_API_KEY
 from ..shemas import Registration
 from .events_aggregator import EventsAggregatorService
 
@@ -101,3 +101,21 @@ class EventsProviderService:
         await self.service.cansel_ticket(ticket_id=ticket_id)
 
         return status
+
+    async def send_to_capashino(
+        self,
+        message: str,
+        reference_id: UUID,
+        idempotency_key: str = None,
+    ):
+        data = {"message": message, "reference_id": reference_id}
+        if idempotency_key:
+            data["idempotency_key"] = idempotency_key
+
+        async with self.session.post(
+            f"{EVENTS_CAPASHINO_URL}/api/notifications/", json=data
+        ) as response:
+            status = response.status
+            result = await response.json()
+
+        return status, result
