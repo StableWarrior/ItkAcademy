@@ -52,11 +52,12 @@ class EventsProviderService:
         return seats
 
     async def register_ticket(self, registration: Registration):
-        ticket = await self.service.get_ticket_idempotency(
+        ticket_id = await self.service.get_ticket_idempotency(
             registration=registration, idempotency_key=registration.idempotency_key
         )
+        ticket = {"ticket_id": ticket_id}
 
-        if ticket is None:
+        if ticket_id is None:
             seats = await self.get_seats(event_id=registration.event_id)
             event = await self.service.get_event(event_id=registration.event_id)
 
