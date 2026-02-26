@@ -127,6 +127,12 @@ class Outbox(Base):
 
     ticket = relationship("Ticket", back_populates="outbox_messages")
 
+    idempotency = relationship(
+        "OutboxIdempotency",
+        back_populates="outbox",
+        cascade="all, delete-orphan",
+    )
+
 
 class TicketIdempotency(Base):
     __tablename__ = "ticket_idempotency"
@@ -155,4 +161,4 @@ class OutboxIdempotency(Base):
         nullable=False,
         unique=True,
     )
-    outbox = relationship("Outbox")
+    outbox = relationship("Outbox", back_populates="idempotency")
