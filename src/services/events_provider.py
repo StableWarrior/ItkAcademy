@@ -5,7 +5,7 @@ from zoneinfo import ZoneInfo
 import aiohttp
 from fastapi import HTTPException
 
-from ..config import EVENTS_API_URL, X_API_KEY
+from ..config import EVENTS_API_URL, LOGGER, X_API_KEY
 from ..shemas import Registration
 from .events_aggregator import EventsAggregatorService
 
@@ -52,28 +52,37 @@ class EventsProviderService:
         return seats
 
     async def register_ticket(self, registration: Registration):
-        seats = await self.get_seats(event_id=registration.event_id)
-        event = await self.service.get_event(event_id=registration.event_id)
-
-        if registration.seat not in seats["seats"]:
-            raise HTTPException(status_code=404, detail="Seat is not found")
-        if event.registration_deadline <= datetime.now(ZoneInfo("Asia/Vladivostok")):
-            raise HTTPException(
-                status_code=400, detail="Registration deadline has passed"
-            )
-
-        registration_data = registration.model_dump()
-        registration_data.pop("event_id")
-
-        async with self.session.post(
-            f"{EVENTS_API_URL}/api/events/{registration.event_id}/register/",
-            json=registration_data,
-        ) as response:
-            ticket = await response.json()
-
-        await self.service.register_ticket(
-            ticket_id=ticket["ticket_id"], registration=registration
+        ticket = await self.service.get_ticket_idempotency(
+            registration=registration, idempotency_key=registration.idempotency_key
         )
+
+        if ticket is None:
+            seats = await self.get_seats(event_id=registration.event_id)
+            event = await self.service.get_event(event_id=registration.event_id)
+
+            LOGGER.info("seats", seats=seats)
+
+            if registration.seat not in seats["seats"]:
+                raise HTTPException(status_code=404, detail="Seat is not found")
+            if event.registration_deadline <= datetime.now(
+                ZoneInfo("Asia/Vladivostok")
+            ):
+                raise HTTPException(
+                    status_code=400, detail="Registration deadline has passed"
+                )
+
+            registration_data = registration.model_dump()
+            registration_data.pop("event_id")
+
+            async with self.session.post(
+                f"{EVENTS_API_URL}/api/events/{registration.event_id}/register/",
+                json=registration_data,
+            ) as response:
+                ticket = await response.json()
+
+            await self.service.register_ticket(
+                ticket_id=ticket["ticket_id"], registration=registration
+            )
 
         return ticket
 
