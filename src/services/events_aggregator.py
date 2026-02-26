@@ -1,13 +1,21 @@
 from datetime import date
 from uuid import UUID
 
+from fastapi import HTTPException
+
 from ..database.repository.events_aggregator import EventsAggregatorRepository
+from ..database.repository.idempotency_repository import IdempotencyRepository
 from ..shemas import Registration
 
 
 class EventsAggregatorService:
-    def __init__(self, repository: EventsAggregatorRepository):
+    def __init__(
+        self,
+        repository: EventsAggregatorRepository,
+        idempotency: IdempotencyRepository = None,
+    ):
         self.repository = repository
+        self.idempotency = idempotency
 
     async def get_page(
         self,
@@ -37,3 +45,39 @@ class EventsAggregatorService:
     async def cansel_ticket(self, ticket_id: UUID):
         ticket = await self.repository.cansel_ticket(ticket_id=ticket_id)
         return ticket
+
+    async def get_ticket_idempotency(
+        self, registration: Registration, idempotency_key: str | None
+    ):
+        ticket = await self.idempotency.get_ticket(idempotency_key=idempotency_key)
+        if ticket:
+            orm_dict = {
+                "event_id": ticket.event_id,
+                "first_name": ticket.first_name,
+                "last_name": ticket.last_name,
+                "email": ticket.email,
+                "seat": ticket.seat,
+            }
+            pydantic_dict = registration.model_dump(exclude={"idempotency_key"})
+            if orm_dict == pydantic_dict:
+                return ticket.id
+            else:
+                raise HTTPException(status_code=409, detail="Conflict")
+
+        return ticket
+
+    async def get_outbox_idempotency(self, idempotency_key: str | None):
+        outbox = await self.idempotency.get_outbox(idempotency_key=idempotency_key)
+        return outbox
+
+    async def save_ticket_idempotency(self, ticket_id: UUID, idempotency_key: str):
+        result = await self.idempotency.save_ticket(
+            ticket_id=ticket_id, idempotency_key=idempotency_key
+        )
+        return result
+
+    async def save_outbox_idempotency(self, outbox_id: UUID, idempotency_key: str):
+        result = await self.idempotency.save_outbox(
+            outbox_id=outbox_id, idempotency_key=idempotency_key
+        )
+        return result
