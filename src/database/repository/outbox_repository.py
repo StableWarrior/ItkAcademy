@@ -33,7 +33,7 @@ class OutboxRepository:
             .where(Outbox.status == status)
         )
 
-        outboxes = result.scalars().unique().all()
+        outboxes = result.unique().scalars().all()
 
         return outboxes
 

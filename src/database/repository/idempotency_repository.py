@@ -2,8 +2,9 @@ from uuid import UUID
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import joinedload
 
-from ..models import OutboxIdempotency, TicketIdempotency
+from ..models import OutboxIdempotency, Ticket, TicketIdempotency
 
 
 class IdempotencyRepository:
@@ -13,10 +14,12 @@ class IdempotencyRepository:
     async def get_ticket(self, idempotency_key: str | None):
 
         result = await self.db.execute(
-            select(TicketIdempotency).where(TicketIdempotency.key == idempotency_key)
+            select(TicketIdempotency)
+            .options(joinedload(TicketIdempotency.ticket).joinedload(Ticket.user))
+            .where(TicketIdempotency.key == idempotency_key)
         )
 
-        idempotency = result.scalar_one_or_none()
+        idempotency = result.unique().scalar_one_or_none()
 
         if idempotency:
             return idempotency.ticket
@@ -26,10 +29,12 @@ class IdempotencyRepository:
     async def get_outbox(self, idempotency_key: str | None):
 
         result = await self.db.execute(
-            select(OutboxIdempotency).where(OutboxIdempotency.key == idempotency_key)
+            select(OutboxIdempotency)
+            .options(joinedload(OutboxIdempotency.outbox))
+            .where(OutboxIdempotency.key == idempotency_key)
         )
 
-        idempotency = result.scalar_one_or_none()
+        idempotency = result.unique().scalar_one_or_none()
 
         if idempotency:
             return idempotency.outbox
