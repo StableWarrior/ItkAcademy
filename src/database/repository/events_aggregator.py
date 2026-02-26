@@ -10,6 +10,7 @@ from src.shemas import Registration
 
 from ..connection import async_session
 from ..models import Event, Ticket, User
+from .idempotency_repository import IdempotencyRepository
 from .outbox_repository import OutboxRepository
 
 
@@ -130,6 +131,12 @@ class EventsAggregatorRepository:
                     status="ожидает отправки",
                     ticket_id=ticket_id,
                 )
+                if registration_data["idempotency_key"]:
+                    idempotency_repository = IdempotencyRepository(db)
+                    await idempotency_repository.save_ticket(
+                        ticket_id=ticket_id,
+                        idempotency_key=registration_data["idempotency_key"],
+                    )
 
     @classmethod
     async def cansel_ticket(cls, ticket_id: UUID):

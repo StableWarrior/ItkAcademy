@@ -41,6 +41,7 @@ class Registration(BaseModel):
     last_name: str
     email: str
     seat: str
+    idempotency_key: Optional[str] = None
 
 
 class Ticket(BaseModel):

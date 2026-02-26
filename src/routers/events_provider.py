@@ -3,7 +3,9 @@ from uuid import UUID
 from fastapi import APIRouter
 from fastapi_cache.decorator import cache
 
+from ..database.connection import async_session
 from ..database.repository.events_aggregator import EventsAggregatorRepository
+from ..database.repository.idempotency_repository import IdempotencyRepository
 from ..services.events_aggregator import EventsAggregatorService
 from ..services.events_provider import EventsProviderService
 from ..shemas import Registration, Seats, Ticket
@@ -26,10 +28,15 @@ async def get_seats(event_id: UUID) -> Seats:
 
 @router.post("/tickets", name="register_ticket", response_model=Ticket, status_code=201)
 async def register_ticket(registration: Registration) -> Seats:
-    async with EventsProviderService(
-        service=EventsAggregatorService(repository=EventsAggregatorRepository())
-    ) as session:
-        ticket = await session.register_ticket(registration=registration)
+    async with async_session() as db:
+        async with db.begin():
+            async with EventsProviderService(
+                service=EventsAggregatorService(
+                    repository=EventsAggregatorRepository(),
+                    idempotency=IdempotencyRepository(db=db),
+                )
+            ) as session:
+                ticket = await session.register_ticket(registration=registration)
     return ticket
 
 
