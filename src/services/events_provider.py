@@ -109,7 +109,7 @@ class EventsProviderService:
         reference_id: UUID,
         idempotency_key: str = None,
     ):
-        data = {"message": message, "reference_id": reference_id}
+        data = {"message": message, "reference_id": str(reference_id)}
         if idempotency_key:
             data["idempotency_key"] = idempotency_key
 
