@@ -3,6 +3,7 @@ from uuid import UUID
 
 from fastapi import HTTPException
 
+from ..config import LOGGER
 from ..database.repository.events_aggregator import EventsAggregatorRepository
 from ..database.repository.idempotency_repository import IdempotencyRepository
 from ..shemas import Registration
@@ -58,6 +59,12 @@ class EventsAggregatorService:
                 "email": ticket.user.email,
             }
             pydantic_dict = registration.model_dump(exclude={"idempotency_key", "seat"})
+            LOGGER.info(
+                "idempotency_check",
+                idempotency_key=idempotency_key,
+                orm_dict=orm_dict,
+                pydantic_dict=pydantic_dict,
+            )
             if orm_dict == pydantic_dict:
                 return ticket.id
             else:
