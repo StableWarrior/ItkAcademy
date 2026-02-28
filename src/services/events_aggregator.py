@@ -57,7 +57,9 @@ class EventsAggregatorService:
                 "first_name": ticket.user.first_name,
                 "last_name": ticket.user.last_name,
             }
-            pydantic_dict = registration.model_dump(exclude={"idempotency_key", "seat", "email"})
+            pydantic_dict = registration.model_dump(
+                exclude={"idempotency_key", "seat", "email"},
+            )
             LOGGER.info(
                 "idempotency_check",
                 idempotency_key=idempotency_key,
