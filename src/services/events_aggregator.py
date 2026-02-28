@@ -56,9 +56,8 @@ class EventsAggregatorService:
                 "first_name": ticket.user.first_name,
                 "last_name": ticket.user.last_name,
                 "email": ticket.user.email,
-                "seat": ticket.seat,
             }
-            pydantic_dict = registration.model_dump(exclude={"idempotency_key"})
+            pydantic_dict = registration.model_dump(exclude={"idempotency_key", "seat"})
             if orm_dict == pydantic_dict:
                 return ticket.id
             else:

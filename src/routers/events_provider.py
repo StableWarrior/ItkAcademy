@@ -27,7 +27,7 @@ async def get_seats(event_id: UUID) -> Seats:
 
 
 @router.post("/tickets", name="register_ticket", response_model=Ticket, status_code=201)
-async def register_ticket(registration: Registration) -> Seats:
+async def register_ticket(registration: Registration) -> Ticket:
     async with async_session() as db:
         async with db.begin():
             async with EventsProviderService(
