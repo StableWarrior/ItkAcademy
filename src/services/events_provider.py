@@ -114,8 +114,10 @@ class EventsProviderService:
             data["idempotency_key"] = idempotency_key
 
         async with self.session.post(
-            f"{EVENTS_CAPASHINO_URL}/api/notifications/", json=data
+            f"{EVENTS_CAPASHINO_URL}/api/notifications", json=data
         ) as response:
+            LOGGER.info("response", response=response.text)
+            LOGGER.info("ticket", outbox=reference_id)
             status = response.status
             result = await response.json()
 
