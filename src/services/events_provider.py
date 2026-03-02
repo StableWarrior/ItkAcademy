@@ -119,7 +119,7 @@ class EventsProviderService:
         ) as response:
             LOGGER.info(
                 "response",
-                response=response.text,
+                response=await response.text(),
                 headers=response.request_info.headers,
             )
             LOGGER.info("ticket", outbox=reference_id)
