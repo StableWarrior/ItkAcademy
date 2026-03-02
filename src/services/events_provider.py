@@ -118,7 +118,9 @@ class EventsProviderService:
             f"{EVENTS_CAPASHINO_URL}/api/notifications", json=data
         ) as response:
             LOGGER.info(
-                "response", response=response.text, headers=response.request_info.headers
+                "response",
+                response=response.text,
+                headers=response.request_info.headers,
             )
             LOGGER.info("ticket", outbox=reference_id)
             status = response.status
