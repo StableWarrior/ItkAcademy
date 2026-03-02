@@ -18,6 +18,7 @@ class EventsProviderService:
         self.session = aiohttp.ClientSession(
             headers={
                 "x-api-key": X_API_KEY,
+                "Content-Type": "application/json",
             }
         )
         return self
